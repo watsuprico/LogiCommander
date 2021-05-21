@@ -156,7 +156,9 @@ namespace LogiGraphics {
         public void LoadString(string str) {
             string version = "";
             Reader next = Reader.Wait;
-            int curLayer = -1;
+            int curLayer = 0;
+            Layers = new Layer[1];
+            Layers[0] = new Layer();
 
             string tmpStr = "";
             int tmpInt = 0;

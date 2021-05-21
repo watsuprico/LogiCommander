@@ -20,5 +20,8 @@
         <CheckBox x:Name="chkBtn3" Content="btn3" HorizontalAlignment="Left" Margin="200,45,0,0" VerticalAlignment="Top" IsEnabled="False"/>
 
 
+        <Button Content="Start Applet" HorizontalAlignment="Left" Margin="522,173,0,0" VerticalAlignment="Top" Height="58" Width="119" Click="Button_Click_1"/>
+
+
     </Grid>
 </Window>

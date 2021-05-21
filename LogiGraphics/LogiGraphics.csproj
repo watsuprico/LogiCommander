@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basics.cs" />
+    <Compile Include="Button.cs" />
+    <Compile Include="ButtonPoller.cs" />
     <Compile Include="Display.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Layer.cs" />

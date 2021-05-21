@@ -307,7 +307,7 @@ namespace LogiGraphics {
                 }
 
                 return points;
-            } catch (Exception e) {
+            } catch (Exception) {
                 MessageBox.Show("Failed to render image.");
                 return new Point[0];
             }

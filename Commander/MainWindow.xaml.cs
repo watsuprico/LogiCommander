@@ -21,7 +21,7 @@ namespace LogiCommand {
          */
 
         [DllImport("user32.dll")]
-        public static extern void Keybd_event(byte virtualKey, byte scanCode, uint flags, IntPtr extraInfo);
+        public static extern void keybd_event(byte virtualKey, byte scanCode, uint flags, IntPtr extraInfo);
         public const int KEYEVENTF_EXTENTEDKEY = 1;
         public const int KEYEVENTF_KEYUP = 0;
         public const int VK_MEDIA_NEXT_TRACK = 0xB0;// code to jump to next track
@@ -31,156 +31,22 @@ namespace LogiCommand {
 
         private bool bExit = false;
         private bool nowRunning = false;
-        private bool isMono = false;
-        /// <summary>
-        /// How fast the screen and buttons are updated. "Suspended mode" increases the polling speed to 100.
-        /// </summary>
-        private static int pollingSpeed = 5;
-        private readonly int waitTimeBeforeSuspend = 3000; // Time (in ms) to wait before entering "suspend mode"
-        private bool pollingModeSuspended = false;
 
 
         // The display "background" (the display)
-        private byte[] displayMatrix;
-        private bool matrixChanged = true;
         private LGV MainImage;
 
 
-        private Thread pollThread;
-
-        // Amount of time needed to pass from a button being pressed to being held
-        private readonly static int pressedToHeldTime = 500;
-        enum BtnState {
-            /// <summary>
-            /// Not pressed/held, waiting
-            /// </summary>
-            INACTIVE,
-            /// <summary>
-            /// Button has just been released
-            /// </summary>
-            RELEASED,
-            /// <summary>
-            /// Button just pressed
-            /// </summary>
-            PRESSED,
-            /// <summary>
-            /// Has just been held for pressedToHeldTime
-            /// </summary>
-            HELD,
-            /// <summary>
-            /// Being constantly held
-            /// </summary>
-            HOLDING,
-        }
-        class LogiButton {
-            private int _pressedTime = 0; // Time _held has been true (ms)
-            private bool _held = false; // internal 'held'
-
-            public bool IsInactive {
-                get { return curState == BtnState.INACTIVE; }
-            }
-            public bool IsPressed {
-                get { return curState == BtnState.PRESSED; }
-            }
-            public bool IsReleased {
-                get { return curState == BtnState.RELEASED; }
-            }
-            public bool IsHeld {
-                get { return curState == BtnState.HELD; }
-            }
-            public bool IsHolding {
-                get { return curState == BtnState.HOLDING; }
-            }
-
-            public event EventHandler Inactive;
-            public event EventHandler Pressed;
-            public event EventHandler Released;
-            public event EventHandler Held;
-            public event EventHandler Holding;
-
-            public BtnState curState = BtnState.INACTIVE;
-
-            public LogiButton Update(bool btnPressed) {
-                if (btnPressed) {
-                    if (curState == BtnState.INACTIVE && !_held) {
-                        curState = BtnState.PRESSED;
-
-                        if (Pressed != null)
-                            Pressed.Invoke(this, EventArgs.Empty);
-                    } else if (_held)
-                        _pressedTime += pollingSpeed;
-
-                    else if (curState == BtnState.PRESSED) {
-                        _pressedTime += pollingSpeed;
-                        _held = true;
-                        curState = BtnState.INACTIVE;
-
-                        if (Inactive != null)
-                            Inactive.Invoke(this, EventArgs.Empty);
-
-                    } else if (curState == BtnState.HELD) {
-                        curState = BtnState.HOLDING;
-
-                        if (Holding != null)
-                            Holding.Invoke(this, EventArgs.Empty);
-
-                    }
-
-                } else {
-                    if (_held)
-                        curState = BtnState.RELEASED;
-
-                    else if (curState != BtnState.INACTIVE) {
-                        if (curState == BtnState.RELEASED) {
-                            curState = BtnState.INACTIVE;
-
-                            if (Inactive != null)
-                                Inactive.Invoke(this, EventArgs.Empty);
-
-                        } else {
-                            curState = BtnState.RELEASED;
-
-                            if (Released != null)
-                                Released.Invoke(this, EventArgs.Empty);
-
-                        }
-                    }
-
-                    _held = false;
-                    _pressedTime = 0;
-
-                    return this;
-                }
-
-                if (_pressedTime > pressedToHeldTime) {
-                    _pressedTime = 0;
-                    curState = BtnState.HELD;
-
-                    if (Held != null)
-                        Held.Invoke(this, EventArgs.Empty);
-
-                    _held = false;
-                }
-
-                return this;
-            }
-        }
-        private LogiButton btn0 = new();
-        private LogiButton btn1 = new();
-        private LogiButton btn2 = new();
-        private LogiButton btn3 = new();
+        private ButtonPoller buttonPoller;
 
 
         #region Window events
         public MainWindow() {
             InitializeComponent();
 
-            pollThread = new Thread(ButtonPoller) {
-                IsBackground = true,
-                Name = "BtnPoller"
-            };
+            
 
-            Editor editor = new Editor();
+            Editor editor = new();
             editor.Show();
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
@@ -197,65 +63,6 @@ namespace LogiCommand {
         /// <summary>
         /// This method polls the buttons
         /// </summary>
-        private void ButtonPoller() {
-            bool allInactive = false;
-            int timeInactive = 0;
-
-            int cycleCount = 0;
-
-            while (!bExit) {
-                btn0.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_0));
-                btn1.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_1));
-                btn2.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_2));
-                btn3.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_3));
-
-                allInactive = (btn0.curState == BtnState.INACTIVE && btn1.curState == BtnState.INACTIVE && btn2.curState == BtnState.INACTIVE && btn3.curState == BtnState.INACTIVE);
-
-                if (allInactive)
-                    timeInactive += pollingSpeed;
-                else {
-                    timeInactive = 0;
-                    if (pollingModeSuspended) {
-                        pollingSpeed = 5;
-                        pollingModeSuspended = false;
-                    }
-                }
-
-                if (timeInactive >= waitTimeBeforeSuspend) {
-                    pollingSpeed = 100;
-                    pollingModeSuspended = true;
-                }
-
-                /*if (btn1.curState == BtnState.INACTIVE) {
-                    //LogitechGSDK.LogiLcdMonoSetText(2, "inactive!");
-                } else if (btn1.curState == BtnState.PRESSED) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "pressed!");
-                } else if (btn1.curState == BtnState.RELEASED) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "released!");
-                } else if (btn1.curState == BtnState.HELD) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "held!");
-                } else if (btn1.curState == BtnState.HOLDING) {
-                    //LogitechGSDK.LogiLcdMonoSetText(2, "holding!");
-                }*/
-
-                //LogitechGSDK.LogiLcdMonoSetText(0, (pollingModeSuspended) ? "suspended" : "active");
-
-
-                cycleCount++;
-
-
-                if (cycleCount == 20) {
-                    cycleCount = 0;
-
-                    LogitechGSDK.LogiLcdUpdate(); // Update display
-                }
-
-
-
-
-                Thread.Sleep(pollingSpeed); // Limit polling a little bit, we don't want to destroy performance
-            }
-        } 
 
         /// <summary>
         /// Draws an outline using multiple points (connect the dots)
@@ -304,21 +111,9 @@ namespace LogiCommand {
 
             //LogitechGSDK.LogiLcdMonoSetText(0, "...");
 
-            if (LogitechGSDK.LogiLcdIsConnected(LogitechGSDK.LOGI_LCD_TYPE_MONO)) {
-                displayMatrix = new byte[LogitechGSDK.LOGI_LCD_MONO_WIDTH * LogitechGSDK.LOGI_LCD_MONO_HEIGHT * 4];
-                isMono = true;
-            } else {
-                displayMatrix = new byte[LogitechGSDK.LOGI_LCD_COLOR_WIDTH * LogitechGSDK.LOGI_LCD_COLOR_HEIGHT * 4];
-            }
-
-            pollThread.Start();
-
             // load images
             String splash = File.ReadAllText("../../../splash.lcp");
             MainImage = new LGV(splash);
-
-            btn0.Pressed += UpdateImage;
-            btn3.Pressed += ClearImage;
         }
 
         private void ClearImage(object sender, EventArgs e) {
@@ -350,6 +145,21 @@ namespace LogiCommand {
 
             Editor editor = new Editor();
             editor.Show();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e) {
+            buttonPoller = new ButtonPoller();
+            buttonPoller.PollerThread.Start();
+
+            buttonPoller.Button1.Pressed += (object sender, EventArgs e) => {
+                keybd_event(VK_MEDIA_PREV_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+            };
+            buttonPoller.Button2.Pressed += (object sender, EventArgs e) => {
+                keybd_event(VK_MEDIA_PLAY_PAUSE, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+            };
+            buttonPoller.Button3.Pressed += (object sender, EventArgs e) => {
+                keybd_event(VK_MEDIA_NEXT_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+            };
         }
     }
 }
