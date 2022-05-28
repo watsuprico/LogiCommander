@@ -9,7 +9,7 @@ namespace LogiGraphics {
         public static byte[,,] PointsToBytes(Point[] points) {
             byte[,,] composite = new byte[3, LogitechGSDK.LOGI_LCD_COLOR_WIDTH, LogitechGSDK.LOGI_LCD_COLOR_HEIGHT];
             foreach (Point p in points) {
-                if (p.X <= LogitechGSDK.LOGI_LCD_COLOR_WIDTH && p.Y <= LogitechGSDK.LOGI_LCD_COLOR_HEIGHT) {
+                if (p.X <= LogitechGSDK.LOGI_LCD_COLOR_WIDTH && p.Y <= LogitechGSDK.LOGI_LCD_COLOR_HEIGHT && p.X >= 0 && p.Y >= 0) {
                     composite[0, p.X, p.Y] = p.Color.A;
                     composite[0, p.X, p.Y] = p.Color.R;
                     composite[0, p.X, p.Y] = p.Color.G;
@@ -30,7 +30,6 @@ namespace LogiGraphics {
             points = new Point[ogPoints.Length + 1];
             ogPoints.CopyTo(points, 0);
             points[ogPoints.Length] = point;
-            point = null;
         }
         public static void AddPoints(ref Point[] points, Point[] newPoints) {
             if (newPoints == null || points == null)
@@ -54,7 +53,6 @@ namespace LogiGraphics {
             Point[] pointsClone = new Point[points.Length];
             
             points.CopyTo(pointsClone, 0);
-            points = null;
 
             AddPoint(ref pointsClone, newPoint);
             
@@ -70,7 +68,6 @@ namespace LogiGraphics {
             Point[] pointsClone = new Point[points.Length];
 
             points.CopyTo(pointsClone, 0);
-            points = null;
 
             AddPoints(ref pointsClone, newPoints);
 

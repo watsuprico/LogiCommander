@@ -7,6 +7,34 @@ using System.Windows.Media;
 
 namespace LogiGraphics {
     public class Image {
+
+        /*
+         * 
+         * LGI (LogiGraphics Image)
+         * 
+         * ``       between the two '`'s is a version number of this file format
+         *          Following this format: <type>.<version> (This version would be: LGI.1)
+         *
+         * $        sets the layer number for the data to follow
+         * $n{}     sets parameters for the layer n
+         * $*{}     sets parameters for the image
+         *  {width:10}      sets the width of the image to 10
+         *  {height:}       image height
+         *  {xOffset:}      image/layer x offset
+         *  {yOffset:}      image/layer y offset
+         *  {transparency:} layer transparency
+         *  {layerType:}    layer type
+         *
+         *
+         *
+         * []       a point
+         * !        repeats the last point n times on the X axis ([1,1,1]!3 gives us [1,1,1][2,1,1][3,1,1])
+         * !!       repeats the last point n times on the Y axis ([1,1,1]!!3 gives us [1,1,1][1,2,1][1,3,1])
+         * 
+         * 
+         * 
+         */
+
         #region Properties
         public int X;
         public int Y;
@@ -21,7 +49,7 @@ namespace LogiGraphics {
             }
             set {
                 _display = value;
-                value.Drawing += (object dis, EventArgs e) => {
+                value.Drawing = (object dis, EventArgs e) => {
                     UpdateDisplay();
                 };
             }
@@ -73,6 +101,7 @@ namespace LogiGraphics {
                         if (channels >= 3) {
                             composite[1, x, y] = Layers[i].Pixels[1, x, y];
                             composite[2, x, y] = Layers[i].Pixels[2, x, y];
+                            composite[3, x, y] = Layers[i].Pixels[3, x, y];
                         }
                     }
                 }
@@ -123,17 +152,15 @@ namespace LogiGraphics {
             AddLayer(new Layer(shape, this), index);
         }
 
-        public void Clear(Color color) {
+        public void Clear() {
             Layers = new Layer[1];
             Layers[0] = new Layer();
             UpdateDisplay();
         }
-        public void Clear() {
-            Clear(Color.FromArgb(0, 0, 0, 0));
-        }
 
 
-        enum Reader {
+
+        private enum Reader {
             Version,
             LayerNumber,
             PointX,
@@ -154,14 +181,14 @@ namespace LogiGraphics {
             Wait
         }
         public void LoadString(string str) {
-            string version = "";
+            string version;
             Reader next = Reader.Wait;
             int curLayer = 0;
             Layers = new Layer[1];
             Layers[0] = new Layer();
 
             string tmpStr = "";
-            int tmpInt = 0;
+            int tmpInt;
             Point tmpPoint = new Point();
 
             foreach (char c in str) {
@@ -342,34 +369,9 @@ namespace LogiGraphics {
             }
         }
 
-        /*
-         * 
-         * LCI (LogiCommand Image)
-         * 
-         * ``       between the two '`'s is a version number of this file format
-         *          Following this format: <type>.<version> (This version would be: LCI.1)
-         *
-         * $        sets the layer number for the data to follow
-         * $n{}     sets parameters for the layer n
-         * $*{}     sets parameters for the image
-         *  {width:10}      sets the width of the image to 10
-         *  {height:}       image height
-         *  {xOffset:}      image/layer x offset
-         *  {yOffset:}      image/layer y offset
-         *  {transparency:} layer transparency
-         *  {layerType:}    layer type
-         *
-         *
-         *
-         * []       a point
-         * !        repeats the last point n times on the X axis ([1,1,1]!3 gives us [1,1,1][2,1,1][3,1,1])
-         * !!       repeats the last point n times on the Y axis ([1,1,1]!!3 gives us [1,1,1][1,2,1][1,3,1])
-         * 
-         * 
-         * 
-         */
+        
         public override string ToString() {
-            string str = "`LCI.1`" +
+            string str = "`LGI.1`" +
                 "$*{width:" + Width + "}" +
                 "$*{height:" + Height + "}" +
                 "$*{xOffset:" + X + "}" +

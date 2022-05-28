@@ -1,4 +1,5 @@
 ﻿using LogiGraphics;
+using LogiGraphics.Buttons;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -21,7 +22,7 @@ namespace LogiCommand {
          */
 
         [DllImport("user32.dll")]
-        public static extern void keybd_event(byte virtualKey, byte scanCode, uint flags, IntPtr extraInfo);
+        private static extern void keybd_event(byte virtualKey, byte scanCode, uint flags, IntPtr extraInfo);
         public const int KEYEVENTF_EXTENTEDKEY = 1;
         public const int KEYEVENTF_KEYUP = 0;
         public const int VK_MEDIA_NEXT_TRACK = 0xB0;// code to jump to next track
@@ -34,11 +35,12 @@ namespace LogiCommand {
 
 
         // The display "background" (the display)
-        private LGV MainImage;
+        private Image MainImage;
 
 
         private ButtonPoller buttonPoller;
 
+        private Editor editor;
 
         #region Window events
         public MainWindow() {
@@ -46,7 +48,7 @@ namespace LogiCommand {
 
             
 
-            Editor editor = new();
+            editor = new();
             editor.Show();
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
@@ -112,27 +114,15 @@ namespace LogiCommand {
             //LogitechGSDK.LogiLcdMonoSetText(0, "...");
 
             // load images
-            String splash = File.ReadAllText("../../../splash.lcp");
-            MainImage = new LGV(splash);
-        }
-
-        private void ClearImage(object sender, EventArgs e) {
-            for (int x = 0; x < LogitechGSDK.LOGI_LCD_MONO_WIDTH; x++) {
-                for (int y = 0; y < LogitechGSDK.LOGI_LCD_MONO_HEIGHT; y++) {
-                    MainImage.DisablePixel(x, y);
-                }
-            }
+            String splash = File.ReadAllText("among-us-sample.lgi");
+            MainImage = new Image(editor.PEditor.display, splash);
             MainImage.Draw();
         }
 
-        private void UpdateImage(object sender, EventArgs e) {
-            String splash = File.ReadAllText("../../../splash.lcp");
-            MainImage.Draw(splash);
-        }
 
         private void bntExit_Click(object sender, RoutedEventArgs e) {
             bExit = true;
-            this.Close();
+            Close();
         }
 
 
@@ -148,18 +138,64 @@ namespace LogiCommand {
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e) {
+            if (buttonPoller != null)
+                return;
+
             buttonPoller = new ButtonPoller();
             buttonPoller.PollerThread.Start();
 
+            buttonPoller.Button0.Pressed += (object sender, EventArgs e) => {
+                Dispatcher.Invoke(() => {
+                    chkBtn0.IsChecked = true;
+                });
+            };
             buttonPoller.Button1.Pressed += (object sender, EventArgs e) => {
-                keybd_event(VK_MEDIA_PREV_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                //keybd_event(VK_MEDIA_PREV_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                Dispatcher.Invoke(() => {
+                    chkBtn1.IsChecked = true;
+                });
             };
             buttonPoller.Button2.Pressed += (object sender, EventArgs e) => {
-                keybd_event(VK_MEDIA_PLAY_PAUSE, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                //keybd_event(VK_MEDIA_PLAY_PAUSE, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                Dispatcher.Invoke(() => {
+                    chkBtn2.IsChecked = true;
+                });
             };
             buttonPoller.Button3.Pressed += (object sender, EventArgs e) => {
-                keybd_event(VK_MEDIA_NEXT_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                //keybd_event(VK_MEDIA_NEXT_TRACK, 0, KEYEVENTF_EXTENTEDKEY, IntPtr.Zero);
+                Dispatcher.Invoke(() => {
+                    chkBtn3.IsChecked = true;
+                });
             };
+
+
+            buttonPoller.Button0.Released += (object sender, EventArgs e) => {
+                Dispatcher.Invoke(() => {
+                    chkBtn0.IsChecked = false;
+                });
+            };
+            buttonPoller.Button1.Released += (object sender, EventArgs e) => {
+                Dispatcher.Invoke(() => {
+                    chkBtn1.IsChecked = false;
+                });
+            };
+            buttonPoller.Button2.Released += (object sender, EventArgs e) => {
+                Dispatcher.Invoke(() => {
+                    chkBtn2.IsChecked = false;
+                });
+            };
+            buttonPoller.Button3.Released += (object sender, EventArgs e) => {
+                Dispatcher.Invoke(() => {
+                    chkBtn3.IsChecked = false;
+                });
+            };
+
+            
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e) {
+            Pong pong = new Pong(buttonPoller);
         }
     }
 }

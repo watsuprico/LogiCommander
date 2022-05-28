@@ -71,8 +71,8 @@ namespace LogiGraphics {
         /// <param name="isMono">Referencing the monochromatic screen?</param>
         /// <returns></returns>
         public Color GetPixel(int x, int y) {
-            x = x - xOffset;
-            y = y - yOffset;
+            x -= xOffset;
+            y -= yOffset;
 
 
             if (layerType == LayerType.PIXELS) {
@@ -113,8 +113,8 @@ namespace LogiGraphics {
         /// <param name="color">The color value (a channel value at or above 180 actives the mono pixel)</param>
         public void SetPixel(int x, int y, Color color, bool noOffset = false) {
             if (!noOffset) {
-                x = x + xOffset;
-                y = y + yOffset;
+                x += xOffset;
+                y += yOffset;
             }
 
             int colorChannels = _pixels.GetLength(0);

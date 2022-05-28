@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LogiCommand"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
+        Title="MainWindow" Height="233" Width="470" Closing="Window_Closing">
     <Grid>
         <Button x:Name="btnBegin" Content="Connect" Margin="10,10,10,0" VerticalAlignment="Top" Height="30" Click="btnBegin_Click"/>
-        <Button Content="Edit image" HorizontalAlignment="Left" Margin="70,131,0,0" VerticalAlignment="Top" Height="71" Width="174" Click="Button_Click"/>
+        <Button Content="Edit image" HorizontalAlignment="Right" Margin="0,66,10,0" VerticalAlignment="Top" Height="83" Width="210" Click="Button_Click"/>
 
 
         <Button x:Name="btnExit" Content="Exit" Margin="10,0,10,10" Click="bntExit_Click" Height="35" VerticalAlignment="Bottom"/>
@@ -20,7 +20,8 @@
         <CheckBox x:Name="chkBtn3" Content="btn3" HorizontalAlignment="Left" Margin="200,45,0,0" VerticalAlignment="Top" IsEnabled="False"/>
 
 
-        <Button Content="Start Applet" HorizontalAlignment="Left" Margin="522,173,0,0" VerticalAlignment="Top" Height="58" Width="119" Click="Button_Click_1"/>
+        <Button Content="Start Applet" HorizontalAlignment="Left" Margin="10,66,0,0" Width="210" Click="Button_Click_1" Height="38" VerticalAlignment="Top"/>
+        <Button Content="Start &quot;Bouncy Ball&quot;" HorizontalAlignment="Left" Margin="10,111,0,0" VerticalAlignment="Top" Height="38" Width="210" Click="Button_Click_2"/>
 
 
     </Grid>

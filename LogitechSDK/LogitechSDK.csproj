@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectLogitechGSDK.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LogitechGSDK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

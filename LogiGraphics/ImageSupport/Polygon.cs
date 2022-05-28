@@ -7,13 +7,17 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace LogiGraphics {
-    public class Polygon {
-        private Point[] _points;
 
-        private float maxX = 0;
-        private float maxY = 0;
-        private float minX = 0;
-        private float minY = 0;
+    /// <summary>
+    /// Trash Polygon drawing API
+    /// </summary>
+    public class Polygon {
+        public Point[] _points = new Point[0];
+
+        public int maxX = 0;
+        public int maxY = 0;
+        public int minX = 0;
+        public int minY = 0;
 
         private byte[,,] _pixels;
         public byte[,,] Pixels {
@@ -21,20 +25,12 @@ namespace LogiGraphics {
         }
         public Point[] Anchors;
 
-        public Color color;
+        public Color Color;
 
 
         //----------
         
 
-        private void UpdateMaxMin() {
-            maxX = _points[0].X;
-            maxY = _points[0].Y;
-            minX = _points[0].X;
-            minY = _points[0].Y;
-
-            
-        }
 
         public bool IsPointWithinBounds(Point p) {
             if (p.X < minX || p.X > maxX || p.Y < minY || p.Y > maxY) {
@@ -48,19 +44,45 @@ namespace LogiGraphics {
             }
             return inside;
         }
-        public bool IsPointWithinBounds(float x, float y) {
-            Point p = new Point((int)x, (int)y);
+        public bool IsPointWithinBounds(int x, int y) {
+            Point p = new Point(x, y);
             return IsPointWithinBounds(p);
         }
 
         public Polygon(Point[] points) {
-            this.Anchors = points;
-            Anchors = points;
+            Anchors = new Point[points.Length];
+            for (int i = 0; i < points.Length; i++) {
+                Anchors[i] = new Point(){
+                    X = points[i].X,
+                    Y = points[i].Y,
+                    Color = points[i].Color
+                };
+            }
+            Color = points[0].Color;
         }
         public Polygon(Point[] points, Color color) {
-            this.Anchors = points;
-            this.color = color;
             Anchors = points;
+            Color = color;
+        }
+
+        public void FindMaxMin() {
+            if (Anchors.Length < 0)
+                return;
+
+            maxX = minX = Anchors[0].X;
+            maxY = minY = Anchors[0].Y;
+
+            foreach (Point p in Anchors) {
+                if (p.X > maxX)
+                    maxX = p.X;
+                if (p.X < minX)
+                    minX = p.X;
+
+                if (p.Y > maxY)
+                    maxY = p.Y;
+                if (p.Y < minY)
+                    minY = p.Y;
+            }
         }
 
         public void Outline() {
@@ -74,23 +96,29 @@ namespace LogiGraphics {
                 else
                     tmp[1] = Anchors[i + 1];
 
+                tmp[0].Color = Color;
+                tmp[1].Color = Color;
+
                 Basics.AddPoints(ref p, Basics.RenderLine(tmp));
 
             }
-            this._pixels = Basics.PointsToBytes(p);
+            _points = p;
+            _pixels = Basics.PointsToBytes(_points);
         }
 
         public void Fill() {
             // brute force method :))((())
+            FindMaxMin();
             Outline();
             for (int x = (int)minX; x < maxX; x++) {
                 for (int y = (int)minY; y < maxY; y++) {
-                    Point p = new Point(x, y, _points[0].Color);
-
-                    if (IsPointWithinBounds(p))
+                    if (IsPointWithinBounds(x, y)) {
+                        Point p = new Point(x, y, _points[0].Color);
                         Basics.AddPoint(ref _points, p);
+                    }
                 }
             }
+            _pixels = Basics.PointsToBytes(_points);
         }
     }
 }

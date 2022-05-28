@@ -43,15 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Basics.cs" />
-    <Compile Include="Button.cs" />
-    <Compile Include="ButtonPoller.cs" />
+    <Compile Include="ImageSupport\Basics.cs" />
+    <Compile Include="Buttons\Button.cs" />
+    <Compile Include="Buttons\ButtonPoller.cs" />
+    <Compile Include="Buttons\ButtonStates.cs" />
     <Compile Include="Display.cs" />
     <Compile Include="Image.cs" />
-    <Compile Include="Layer.cs" />
-    <Compile Include="LGV.cs" />
-    <Compile Include="Point.cs" />
-    <Compile Include="Polygon.cs" />
+    <Compile Include="ImageSupport\Layer.cs" />
+    <Compile Include="Legacy\LGV.cs" />
+    <Compile Include="ImageSupport\Point.cs" />
+    <Compile Include="ImageSupport\Polygon.cs" />
+    <Compile Include="Legacy\PointConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -55,7 +55,7 @@ namespace LogiCommand {
             // First find the file
             OpenFileDialog openFileDialog = new OpenFileDialog {
                 Title = "Select a LogiCommandPicture",
-                Filter = "LogiCommandImage (*.lci)|*.lci|All files (*.*)|*.*",
+                Filter = "ogiGraphics Image (LGI) (*.lgi)|*.lgi|All files (*.*)|*.*",
                 InitialDirectory = Environment.CurrentDirectory
             };
 
@@ -71,13 +71,13 @@ namespace LogiCommand {
         private void Save_Click(object sender, RoutedEventArgs e) {
             SaveFileDialog saveFileDialog = new SaveFileDialog {
                 Title = "Save a LogiCommandPicture",
-                Filter = "LogiCommandImage (LCI) (*.lci)|*.lci|Raw byte LCI (*.blci)|*.blci|All files (*.*)|*.*",
+                Filter = "LogiGraphics Image (LGI) (*.lgi)|*.lgi|Raw byte LGI (*.blgi)|*.blgi|All files (*.*)|*.*",
                 InitialDirectory = Environment.CurrentDirectory
             };
 
             if (saveFileDialog.ShowDialog() == true) {
                 switch (System.IO.Path.GetExtension(saveFileDialog.FileName)) {
-                    case ".blci":
+                    case ".blgi":
                         // Raw byte file
                         File.WriteAllBytesAsync(saveFileDialog.FileName, PEditor.surface.image.GetMatrixComposite());
                         break;

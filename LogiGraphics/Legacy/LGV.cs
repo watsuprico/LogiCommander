@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace LogiGraphics {
     /// <summary>
-    /// LogiGraphics View. This is 
+    /// LogiGraphics View. This is (not used, gen 1)
     /// </summary>
     public class LGV {
         public int Width { get { return _width; } }

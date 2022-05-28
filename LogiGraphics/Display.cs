@@ -9,6 +9,12 @@ namespace LogiGraphics {
         public byte[] monoMatrix = new byte[7041];
         public byte[] colorMatrix = new byte[307200];
     }
+
+    /// <summary>
+    /// Display controller.
+    /// 
+    /// API wrapper for LogitechGSDK and drawing to the lcd. Use this to draw LGVs, Images, etc
+    /// </summary>
     public class Display {
         public DisplayObject DisplayObject;
 
@@ -56,7 +62,7 @@ namespace LogiGraphics {
 
         private int GetBytePosition(int x, int y, bool isMono = false) {
             if (isMono) {
-                return (x + (y * LogitechGSDK.LOGI_LCD_MONO_WIDTH));
+                return x + (y * LogitechGSDK.LOGI_LCD_MONO_WIDTH);
             } else {
                 return (x * 4) + (y * LogitechGSDK.LOGI_LCD_COLOR_WIDTH * 4);
             }
@@ -70,18 +76,20 @@ namespace LogiGraphics {
         /// <param name="isMono">Referencing the monochromatic screen?</param>
         /// <returns></returns>
         public Color GetPixel(int x, int y, bool isMono = false) {
-            x = x + xOffset;
-            y = y + yOffset;
+            x += xOffset;
+            y += yOffset;
 
-            if (x < 0 || y < 0 || x > LogitechGSDK.LOGI_LCD_COLOR_WIDTH || y > LogitechGSDK.LOGI_LCD_COLOR_HEIGHT)
+            if (x < 0 || y < 0 || x > LogitechGSDK.LOGI_LCD_COLOR_WIDTH || y > LogitechGSDK.LOGI_LCD_COLOR_HEIGHT) {
                 return Color.FromArgb(0, 0, 0, 0);
+            }
 
             if (x <= LogitechGSDK.LOGI_LCD_MONO_WIDTH && y <= LogitechGSDK.LOGI_LCD_MONO_HEIGHT && isMono) {
                 if (DisplayObject.monoMatrix[GetBytePosition(x, y)] >= 0x80) {
                     // Active
                     return Color.FromArgb(255, 1, 1, 1);
-                } else
+                } else {
                     return Color.FromArgb(0, 0, 0, 0);
+                }
             } else {
                 Color color = new Color();
                 int pos = GetBytePosition(x, y);
@@ -102,8 +110,8 @@ namespace LogiGraphics {
         /// <param name="color">The color value (a channel value at or above 180 actives the mono pixel)</param>
         public void SetPixel(int x, int y, Color color, bool noOffset = false) {
             if (!noOffset) {
-                x = x + xOffset;
-                y = y + yOffset;
+                x += xOffset;
+                y += yOffset;
             }
 
             // Check bounds
@@ -116,6 +124,8 @@ namespace LogiGraphics {
                 color.G = 0;
             if (color.B < 0)
                 color.B = 0;
+            if (color.A < 0)
+                color.A = 0;
 
             if (color.R > 255)
                 color.R = 255;
@@ -123,11 +133,13 @@ namespace LogiGraphics {
                 color.G = 255;
             if (color.B > 255)
                 color.B = 255;
+            if (color.A > 255)
+                color.A = 255;
 
             // Set mono pixel
             if (x <= LogitechGSDK.LOGI_LCD_MONO_WIDTH && y <= LogitechGSDK.LOGI_LCD_MONO_HEIGHT) {
                 byte ourGuy = 0x00;
-                if (color.R >= 180 || color.G >= 180 || color.B >= 180)
+                if ((color.R >= 180 || color.G >= 180 || color.B >= 180) && color.A > 180)
                     ourGuy = 0x80; // 180 = active pixel
                 DisplayObject.monoMatrix[GetBytePosition(x, y, true)] = ourGuy;
             }
@@ -142,25 +154,16 @@ namespace LogiGraphics {
 
             int pos = GetBytePosition(x, y);
             DisplayObject.colorMatrix[pos] = color.B;
-            DisplayObject.colorMatrix[pos+1] = color.G;
-            DisplayObject.colorMatrix[pos+2] = color.R;
-            DisplayObject.colorMatrix[pos+3] = color.A;
-        }
-        public void SetPixel(float x, float y, Color color) {
-            SetPixel((int)Math.Round(x), (int)Math.Round(y), color);
+            DisplayObject.colorMatrix[pos + 1] = color.G;
+            DisplayObject.colorMatrix[pos + 2] = color.R;
+            DisplayObject.colorMatrix[pos + 3] = color.A;
         }
         public void SetPixel(int x, int y, int r, int g, int b, int alpha) {
             SetPixel(x, y, Color.FromArgb((byte)alpha, (byte)r, (byte)g, (byte)b));
         }
-        public void SetPixel(float x, float y, int r, int g, int b, int alpha) {
-            SetPixel((int)Math.Round(x), (int)Math.Round(y), r, g, b, alpha);
-        }
         public void SetPixel(int x, int y, bool active) {
             int c = active ? 255 : 0;
             SetPixel(x, y, c, c, c, c);
-        }
-        public void SetPixel(float x, float y, bool active) {
-            SetPixel((int)Math.Round(x), (int)Math.Round(y), active);
         }
 
         public void SetPixels(Point[] points) {
@@ -172,7 +175,7 @@ namespace LogiGraphics {
             int channels = pixels.GetLength(0);
             int layerWidth = pixels.GetLength(1);
             int layerHeight = pixels.GetLength(2);
-            int pos = 0;
+            int pos;
 
             for (int y = 0; y < layerHeight; y++) {
                 for (int x = 0; x < layerWidth; x++) {
@@ -183,10 +186,10 @@ namespace LogiGraphics {
 
                     pos = GetBytePosition(x, y);
                     if (channels == 4) {
-                            DisplayObject.colorMatrix[pos] = pixels[3, x, y];     // b
-                            DisplayObject.colorMatrix[pos + 1] = pixels[2, x, y]; // g
-                            DisplayObject.colorMatrix[pos + 2] = pixels[1, x, y]; // r
-                            DisplayObject.colorMatrix[pos + 3] = pixels[0, x, y]; // a
+                        DisplayObject.colorMatrix[pos] = pixels[3, x, y];     // b
+                        DisplayObject.colorMatrix[pos + 1] = pixels[2, x, y]; // g
+                        DisplayObject.colorMatrix[pos + 2] = pixels[1, x, y]; // r
+                        DisplayObject.colorMatrix[pos + 3] = pixels[0, x, y]; // a
                     }
                 }
             }
@@ -195,11 +198,11 @@ namespace LogiGraphics {
 
         public void Clear(Color color) {
             byte active = (byte)(color.A > 0 ? 0x80 : 0x00);
-            for (int i = 0; i<DisplayObject.monoMatrix.Length; i++) {
+            for (int i = 0; i < DisplayObject.monoMatrix.Length; i++) {
                 DisplayObject.monoMatrix[i] = active;
             }
 
-            for (int i = 0; i<DisplayObject.colorMatrix.Length; i = i + 4) {
+            for (int i = 0; i < DisplayObject.colorMatrix.Length; i += 4) {
                 DisplayObject.colorMatrix[i] = color.B;
                 DisplayObject.colorMatrix[i + 1] = color.G;
                 DisplayObject.colorMatrix[i + 2] = color.R;
@@ -215,13 +218,13 @@ namespace LogiGraphics {
             SetPixel(x, y, 255, 255, 255, 255);
         }
         public void EnablePixel(float x, float y) {
-            SetPixel(x, y, 255, 255, 255, 255);
+            SetPixel((int)Math.Round(x), (int)Math.Round(y), 255, 255, 255, 255);
         }
         public void DisablePixel(int x, int y) {
             SetPixel(x, y, 0, 0, 0, 0);
         }
         public void DisablePixel(float x, float y) {
-            SetPixel(x, y, 0, 0, 0, 0);
+            SetPixel((int)Math.Round(x), (int)Math.Round(y), 0, 0, 0, 0);
         }
 
         public void LoadImage(Image img) {
