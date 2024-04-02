@@ -1,9 +1,9 @@
 ﻿using LogiGraphics;
 using LogiGraphics.Buttons;
+using LogitechSDK;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 
 namespace LogiCommand {
@@ -46,7 +46,7 @@ namespace LogiCommand {
         public MainWindow() {
             InitializeComponent();
 
-            
+
 
             editor = new();
             editor.Show();
@@ -190,7 +190,7 @@ namespace LogiCommand {
                 });
             };
 
-            
+
 
         }
 

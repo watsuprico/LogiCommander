@@ -1,10 +1,7 @@
 ﻿using LogiGraphics;
 using LogiGraphics.Buttons;
+using LogitechSDK;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace LogiCommand {
@@ -54,7 +51,7 @@ namespace LogiCommand {
             });
             return box;
         }
-        
+
 
         private void DrawBalls() {
             for (int i = 0; i < balls.Length; i++) {
@@ -72,7 +69,7 @@ namespace LogiCommand {
             }
         }
         private void DrawPaddles() {
-            for (int i = 0; i< paddles.Length; i++) {
+            for (int i = 0; i < paddles.Length; i++) {
                 paddles[i].Anchors[0].Color = Colors.White;
                 paddles[i].Color = Colors.White;
                 paddles[i].Fill();
@@ -125,7 +122,7 @@ namespace LogiCommand {
                     ShiftPolygon(ref balls[i], velocityX, velocityY);
                     balls[i].FindMaxMin();
 
-                    if (balls[i].minX<0) {
+                    if (balls[i].minX < 0) {
                         // End-game
                         computerScore++;
                         //balls[i] = DrawBox(rand.Next(4, 15), rand.Next(2, LogitechGSDK.LOGI_LCD_MONO_HEIGHT-2), 2, 2);
@@ -152,7 +149,7 @@ namespace LogiCommand {
                         velocityY *= -1;
                     }
 
-                    for (int x = 0; x<paddles.Length; x++) {
+                    for (int x = 0; x < paddles.Length; x++) {
                         paddles[x].FindMaxMin();
                         bool topLeft = balls[i].minX >= paddles[x].minX && balls[i].minX <= paddles[x].maxX && balls[i].minY >= paddles[x].minY && balls[i].minY <= paddles[x].maxY;
                         bool topRight = balls[i].maxX >= paddles[x].minX && balls[i].maxX <= paddles[x].maxX && balls[i].minY >= paddles[x].minY && balls[i].minY <= paddles[x].maxY;

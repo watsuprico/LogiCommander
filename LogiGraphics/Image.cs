@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LogitechSDK;
+using System;
 using System.Windows.Media;
 
 namespace LogiGraphics {
@@ -36,22 +33,31 @@ namespace LogiGraphics {
          */
 
         #region Properties
+        /// <summary>
+        /// Display X axis offset, <see cref="Display.xOffset"/>.
+        /// </summary>
         public int X;
+        /// <summary>
+        /// Display Y axis offset, <see cref="Display.yOffset"/>.
+        /// </summary>
         public int Y;
 
+        /// <summary>
+        /// Width of this image.
+        /// </summary>
         public int Width = LogitechGSDK.LOGI_LCD_COLOR_WIDTH;
+        /// <summary>
+        /// Height of this image.
+        /// </summary>
         public int Height = LogitechGSDK.LOGI_LCD_COLOR_HEIGHT;
 
         public Layer[] Layers = new Layer[0];
+
         private Display Display {
-            get {
-                return _display;
-            }
+            get => _display;
             set {
                 _display = value;
-                value.Drawing = (object dis, EventArgs e) => {
-                    UpdateDisplay();
-                };
+                value.Drawing = (object dis, EventArgs e) => UpdateDisplay();
             }
         }
         private Display _display;
@@ -85,7 +91,7 @@ namespace LogiGraphics {
 
         public byte[,,] GetComposite() {
             byte[,,] composite = new byte[4, Width, Height];
-            for (int i = Layers.Length-1; i >= 0; i--) {
+            for (int i = Layers.Length - 1; i >= 0; i--) {
                 int channels = Layers[i].Pixels.GetLength(0);
                 int layerWidth = Layers[i].Pixels.GetLength(1);
                 int layerHeight = Layers[i].Pixels.GetLength(2);
@@ -118,7 +124,7 @@ namespace LogiGraphics {
         }
         public Color[,] GetColorComposite() {
             Color[,] colors = new Color[Width, Height];
-            for (int i = Layers.Length; i<0; i++) {
+            for (int i = Layers.Length; i < 0; i++) {
                 for (int y = 0; y < Height; y++) {
                     for (int x = 0; x < Width; x++) {
                         colors[x, y] = Layers[i].GetPixel(x, y);
@@ -126,7 +132,7 @@ namespace LogiGraphics {
                 }
             }
 
-            
+
             return colors;
         }
         public DisplayObject GetDisplayComposite() {
@@ -245,8 +251,8 @@ namespace LogiGraphics {
 
                         int.TryParse(tmpStr, out curLayer);
                         int createLayers = 1 + curLayer - Layers.Length;
-                        if (createLayers>0) {
-                            for (int i = 0; i<createLayers; i++)
+                        if (createLayers > 0) {
+                            for (int i = 0; i < createLayers; i++)
                                 AddLayer(new Layer());
                         }
                         next = Reader.Wait;
@@ -265,7 +271,7 @@ namespace LogiGraphics {
                             if (curLayer == -1)
                                 X = tmpInt;
                             else if (curLayer < Layers.Length)
-                                    Layers[curLayer].xOffset = tmpInt;
+                                Layers[curLayer].xOffset = tmpInt;
                         } else if (next == Reader.yOffset) {
                             if (curLayer == -1)
                                 X = tmpInt;
@@ -369,7 +375,7 @@ namespace LogiGraphics {
             }
         }
 
-        
+
         public override string ToString() {
             string str = "`LGI.1`" +
                 "$*{width:" + Width + "}" +
@@ -377,24 +383,24 @@ namespace LogiGraphics {
                 "$*{xOffset:" + X + "}" +
                 "$*{yOffset:" + Y + "}";
 
-            for (int i = Layers.Length-1; i >= 0; i--) {
+            for (int i = Layers.Length - 1; i >= 0; i--) {
                 Layer layer = Layers[i];
                 str += "$" + i +
                     "{xOffset:" + layer.xOffset + "}" +
                     "{yOffset:" + layer.yOffset + "}" +
-                    "{transparency:" + layer.Transparency+ "}" +
+                    "{transparency:" + layer.Transparency + "}" +
                     "{layerType:" + layer.layerType + "}" +
                     "{channels:" + layer.Pixels.GetLength(0) + "}";
-                
+
                 // if a pixel a value is 0, we move on
                 for (int y = 0; y < layer.Pixels.GetLength(2); y++) {
                     for (int x = 0; x < layer.Pixels.GetLength(1); x++) {
-                        if (layer.Pixels[0, x, y]>0) {
+                        if (layer.Pixels[0, x, y] > 0) {
                             str += $"[{x},{y},{layer.Pixels[0, x, y]},{layer.Pixels[1, x, y]},{layer.Pixels[2, x, y]},{layer.Pixels[3, x, y]}]";
                         }
                     }
                 }
-                
+
             }
 
             return str;

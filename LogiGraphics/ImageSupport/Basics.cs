@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LogitechSDK;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LogiGraphics {
     public static class Basics {
@@ -35,7 +33,7 @@ namespace LogiGraphics {
             if (newPoints == null || points == null)
                 return;
 
-            for (int i = 0; i<newPoints.Length; i++) {
+            for (int i = 0; i < newPoints.Length; i++) {
                 if (!points.Contains(newPoints[i]))
                     AddPoint(ref points, newPoints[i]); // Not already in points, so we'll add it
             }
@@ -51,18 +49,18 @@ namespace LogiGraphics {
             }
 
             Point[] pointsClone = new Point[points.Length];
-            
+
             points.CopyTo(pointsClone, 0);
 
             AddPoint(ref pointsClone, newPoint);
-            
+
             return pointsClone;
         }
         public static Point[] AddPoints(Point[] points, Point[] newPoints) {
             if (newPoints == null)
                 return points;
 
-            if (points == null) 
+            if (points == null)
                 return newPoints;
 
             Point[] pointsClone = new Point[points.Length];

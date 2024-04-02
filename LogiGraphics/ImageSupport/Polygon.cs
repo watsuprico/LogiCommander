@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace LogiGraphics {
 
     /// <summary>
-    /// Trash Polygon drawing API
+    /// Trash Polygon drawing API.
     /// </summary>
     public class Polygon {
         public Point[] _points = new Point[0];
@@ -21,7 +15,7 @@ namespace LogiGraphics {
 
         private byte[,,] _pixels;
         public byte[,,] Pixels {
-            get { return _pixels; }
+            get => _pixels;
         }
         public Point[] Anchors;
 
@@ -29,7 +23,7 @@ namespace LogiGraphics {
 
 
         //----------
-        
+
 
 
         public bool IsPointWithinBounds(Point p) {
@@ -52,7 +46,7 @@ namespace LogiGraphics {
         public Polygon(Point[] points) {
             Anchors = new Point[points.Length];
             for (int i = 0; i < points.Length; i++) {
-                Anchors[i] = new Point(){
+                Anchors[i] = new Point() {
                     X = points[i].X,
                     Y = points[i].Y,
                     Color = points[i].Color

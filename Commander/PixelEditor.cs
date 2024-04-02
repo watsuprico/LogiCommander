@@ -1,4 +1,5 @@
 ﻿using LogiGraphics;
+using LogitechSDK;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -205,8 +206,8 @@ namespace LogiCommand {
             }
 
             public void UpdateImage() {
-                for (int x = 0; x<_owner.PixelWidth; x++) {
-                    for (int y = 0; y<_owner.PixelHeight; y++) {
+                for (int x = 0; x < _owner.PixelWidth; x++) {
+                    for (int y = 0; y < _owner.PixelHeight; y++) {
                         Color pixel = GetColor(x, y);
                         image.Layers[0].SetPixel(x, y, pixel.R, pixel.G, pixel.B, pixel.A);
                     }
@@ -237,8 +238,8 @@ namespace LogiCommand {
                 _owner.PixelHeight = height;
 
 
-                for (int y = 0; y<height; y++) {
-                    for (int x = 0; x<width; x++) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
                         if (channels > 1) {
                             _bitmap.SetPixel(x, y, pixels[0, x, y], pixels[1, x, y], pixels[2, x, y], pixels[3, x, y]);
                         }

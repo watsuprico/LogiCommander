@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LogitechSDK;
+using System;
 using System.Windows.Media;
 
 namespace LogiGraphics {
     public class Layer {
         public LayerType layerType;
-        
+
 
         public bool Visible = true;
         public double Transparency = 100;
@@ -31,7 +28,7 @@ namespace LogiGraphics {
         // To make things simple, I made a 3D array that contains all the channels (RGBA) and each pixel (X,Y)
         // The first index is the channel, 0=A, 1=R, 2=G, 3=B
         // The second index is the X value with the last one being for the Y value.
-        
+
         // So _Colors[2,60,2] get's the amount of green in the pixel at (60,2).
         public byte[,,] Pixels {
             get {

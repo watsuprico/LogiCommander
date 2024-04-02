@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using LogitechSDK;
+using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace LogiGraphics {
@@ -46,7 +42,7 @@ namespace LogiGraphics {
         }
         public LGV(string img) {
             Initializer();
-            
+
             Draw(img);
         }
 
@@ -128,9 +124,9 @@ namespace LogiGraphics {
                 return Color.FromArgb(0, 0, 0, 0);
 
             if (isMono) {
-                if (_displayMatrix[GetBytePosition(x, y)]>=0x80) {
+                if (_displayMatrix[GetBytePosition(x, y)] >= 0x80) {
                     // Active
-                    return Color.FromArgb(255,1,1,1);
+                    return Color.FromArgb(255, 1, 1, 1);
                 }
             }
             return Color.FromArgb(0, 0, 0, 0);
@@ -192,7 +188,7 @@ namespace LogiGraphics {
         }
 
 
-        
+
 
         public static Point[] RenderPoints(string img) {
             try {
@@ -327,7 +323,7 @@ namespace LogiGraphics {
                             else
                                 str += "(" + x + "," + y + "," + pixel.R + "," + pixel.G + "," + pixel.B + "," + pixel.A + ")";
                         }
-                        
+
                     }
                 }
             }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogiGraphics.Buttons {
+﻿namespace LogiGraphics.Buttons {
     /// <summary>
     /// Represents one of the many states a button could be in
     /// </summary>
@@ -37,6 +31,6 @@ namespace LogiGraphics.Buttons {
         /// <summary>
         /// The button was just let go, will transition to RELEASED on next poll update
         /// </summary>
-        RELEASING,
+        RELEASING = 5,
     }
 }

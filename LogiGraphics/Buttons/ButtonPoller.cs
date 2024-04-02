@@ -1,10 +1,6 @@
-﻿using LogiGraphics.Buttons;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using LogitechSDK;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace LogiGraphics.Buttons {
     /// <summary>
@@ -12,11 +8,12 @@ namespace LogiGraphics.Buttons {
     /// </summary>
     public class ButtonPoller {
         /*
-         * The Logitech SDK is a bit wonky, I don't blame them, but, when a button is pressed one keyboard and a button then gets pressed on another keyboard the first keyboard's buttons drop.
+         * The Logitech SDK is a bit wonky, I don't blame them, but, when a button is pressed on one keyboard and a button then gets pressed on another keyboard the first keyboard's buttons drop.
          * 
          * 
          * Weird things happen when two buttons are pressed
          * 
+         * But who has two keyboards?
          * 
          */
 
@@ -40,8 +37,9 @@ namespace LogiGraphics.Buttons {
         /// </summary>
         public Thread PollerThread;
 
+        private bool _pollerThreadCanRun = true;
 
-        
+
         /// <summary>
         /// PollingRate when not suspended
         /// </summary>
@@ -76,7 +74,9 @@ namespace LogiGraphics.Buttons {
 
         ~ButtonPoller() {
             if (PollerThread != null) {
-                PollerThread.Abort();
+                _pollerThreadCanRun = false;
+                PollerThread.Interrupt();
+                //PollerThread.Abort();
             }
         }
 
@@ -89,7 +89,9 @@ namespace LogiGraphics.Buttons {
 
             int cycleCount = 0;
 
-            while (true) {
+            Debug.WriteLine("Starting ButtonPoller::>Poller thread.");
+
+            while (_pollerThreadCanRun) {
                 Button0.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_0), PollingRate);
                 Button1.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_1), PollingRate);
                 Button2.Update(LogitechGSDK.LogiLcdIsButtonPressed(LogitechGSDK.LOGI_LCD_MONO_BUTTON_2), PollingRate);
@@ -123,31 +125,12 @@ namespace LogiGraphics.Buttons {
                     PollingSuspended = true;
                 }
 
-                /*
-                if (Button1.CurrentState == ButtonStates.INACTIVE) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "inactive!");
-                } else if (Button1.CurrentState == ButtonStates.PRESSED) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "pressed!");
-                } else if (Button1.CurrentState == ButtonStates.RELEASED) {
-                    LogitechGSDK.LogiLcdMonoSetText(1, "released!");
-                    LogitechGSDK.LogiLcdMonoSetText(2, "");
-                } else if (Button1.CurrentState == ButtonStates.HELD) {
-                    LogitechGSDK.LogiLcdMonoSetText(1, "held!");
-                } else if (Button1.CurrentState == ButtonStates.HOLDING) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "holding!");
-                } else if (Button1.CurrentState == ButtonStates.RELEASING) {
-                    LogitechGSDK.LogiLcdMonoSetText(2, "releasing!");
-                }
-                LogitechGSDK.LogiLcdMonoSetText(0, PollingSuspended ? "suspended" : "active");
-                LogitechGSDK.LogiLcdUpdate();
-                */
-                
-
-
                 cycleCount++;
 
                 Thread.Sleep(PollingRate); // Limit polling a little bit, we don't want to destroy performance
             }
+
+            Debug.WriteLine("ButtonPoller::>Poller thread halted.");
         }
     }
 }

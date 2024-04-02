@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LogitechSDK;
+using System;
 using System.Windows.Media;
 
 namespace LogiGraphics {
@@ -28,8 +29,7 @@ namespace LogiGraphics {
         }
 
         public void Draw() {
-            if (Drawing != null)
-                Drawing.Invoke(this, EventArgs.Empty);
+            Drawing?.Invoke(this, EventArgs.Empty);
 
             LogitechGSDK.LogiLcdMonoSetBackground(DisplayObject.monoMatrix);
             LogitechGSDK.LogiLcdColorSetBackground(DisplayObject.colorMatrix);
@@ -45,7 +45,7 @@ namespace LogiGraphics {
             bool[,] scrn = new bool[160, 43];
             for (int y = 0; y < 43; y++) {
                 for (int x = 0; x < 160; x++) {
-                    scrn[x, y] = DisplayObject.monoMatrix[x + (y * LogitechGSDK.LOGI_LCD_MONO_WIDTH)]>= 0x80;
+                    scrn[x, y] = DisplayObject.monoMatrix[x + (y * LogitechGSDK.LOGI_LCD_MONO_WIDTH)] >= 0x80;
                 }
             }
             return scrn;
